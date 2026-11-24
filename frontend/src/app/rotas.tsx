@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { PaginaPessoas } from '@/pessoas/PaginaPessoas'
+import { PaginaRegistrarPessoa } from '@/pessoas/PaginaRegistrarPessoa'
 import { Layout } from './Layout'
 import { PaginaNaoEncontrada } from './PaginaNaoEncontrada'
 
@@ -10,6 +11,7 @@ export const rotas: RouteObject[] = [
     children: [
       { index: true, element: <Navigate to="/pessoas" replace /> },
       { path: 'pessoas', element: <PaginaPessoas /> },
+      { path: 'pessoas/nova', element: <PaginaRegistrarPessoa /> },
       { path: '*', element: <PaginaNaoEncontrada /> },
     ],
   },

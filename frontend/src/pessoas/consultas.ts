@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { chamarApi } from '@/api/cliente'
-import type { PaginaResponse, PessoaResponse } from '@/api/tipos'
+import type { PaginaResponse, PessoaResponse, RegistrarPessoaRequest } from '@/api/tipos'
 
 export const TAMANHO_DA_PAGINA = 10
 
@@ -26,5 +26,18 @@ export function usePessoas(pagina: number) {
       }),
     // Mantém a página anterior na tela enquanto a próxima carrega: a tabela não pisca.
     placeholderData: keepPreviousData,
+  })
+}
+
+/** `POST /registrarName`. Ao registrar, as listas ficam desatualizadas e o detalhe já fica no cache. */
+export function useRegistrarPessoa() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (dados: RegistrarPessoaRequest) =>
+      chamarApi<PessoaResponse>('/registrarName', { metodo: 'POST', corpo: dados }),
+    onSuccess: async (pessoa) => {
+      queryClient.setQueryData(chavesDePessoas.detalhe(pessoa.documento), pessoa)
+      await queryClient.invalidateQueries({ queryKey: chavesDePessoas.listas() })
+    },
   })
 }
