@@ -1,14 +1,18 @@
 import { createContext, useContext } from 'react'
-import type { Sessao } from './sessao'
+import type { ApiError } from '@/api/erro'
 
-export type MotivoDeSaida = 'expirada' | null
+/**
+ * Estado da conexão autenticada com a API:
+ * - `conectando`: fazendo o login automático;
+ * - `conectada`: há um token válido;
+ * - `falhou`: o login automático não deu certo (API fora do ar, credenciais erradas).
+ */
+export type EstadoDaConexao =
+  { situacao: 'conectando' } | { situacao: 'conectada' } | { situacao: 'falhou'; erro: ApiError }
 
 export type Autenticacao = {
-  sessao: Sessao | null
-  /** Por que a sessão terminou sem o usuário pedir; mostrado na tela de login. */
-  motivoDeSaida: MotivoDeSaida
-  entrar: (usuario: string, senha: string) => Promise<void>
-  sair: () => void
+  conexao: EstadoDaConexao
+  tentarDeNovo: () => void
 }
 
 export const ContextoDeAutenticacao = createContext<Autenticacao | null>(null)

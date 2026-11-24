@@ -26,3 +26,11 @@ Guardar `{ token, usuario, expiraEm }` no **`sessionStorage`**, num único módu
 - O risco principal é **XSS**: um script injetado na página conseguiria ler o `sessionStorage`. A mitigação é não haver HTML injetado: o React escapa todo texto renderizado e o código não usa `dangerouslySetInnerHTML`. O nginx pode reforçar isso com uma Content-Security-Policy.
 - Como o token vai num header e não num cookie, o navegador nunca o envia sozinho: não há CSRF (o mesmo motivo do ADR 0008).
 - Cada aba tem a sua sessão; fechar a aba desloga.
+
+## Adendo (2026-11-24): login automático
+
+A tela de login foi removida pelo ADR 0012: o frontend obtém o token sozinho, com credenciais de build. O armazenamento no `sessionStorage` continua como descrito aqui. O que mudou:
+
+- Não há mais tela de login, botão "Sair" nem retorno à página pedida (a validação contra *open redirect* deixou de existir junto).
+- Um 401 com token não leva mais ao login: o frontend entra de novo sozinho.
+- Em vez de encerrar a sessão quando o token vence, o frontend o renova 60 s antes.
