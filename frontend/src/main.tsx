@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
 import { createBrowserRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
+import { Provedores } from '@/app/Provedores'
 import { criarQueryClient } from '@/app/queryClient'
 import { rotas } from '@/app/rotas'
 import './index.css'
@@ -12,8 +12,8 @@ const router = createBrowserRouter(rotas)
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
+    <Provedores queryClient={queryClient}>
       <RouterProvider router={router} />
-    </QueryClientProvider>
+    </Provedores>
   </StrictMode>,
 )

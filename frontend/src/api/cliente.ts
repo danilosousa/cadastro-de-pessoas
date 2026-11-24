@@ -1,3 +1,4 @@
+import { avisarSessaoExpirada, lerSessao } from '@/auth/sessao'
 import { ApiError } from './erro'
 
 /** Prefixo que o proxy (Vite no dev, nginx em produção) repassa ao backend. */
@@ -15,6 +16,7 @@ export type Requisicao = {
 /**
  * Chama a API e devolve o JSON já tipado. Qualquer resposta fora de 2xx vira ApiError,
  * e falha de rede vira ApiError com status 0. Respostas 204 devolvem undefined.
+ * Se houver sessão, envia o token no header Authorization.
  */
 export async function chamarApi<T>(caminho: string, requisicao: Requisicao = {}): Promise<T> {
   const { metodo = 'GET', corpo, busca, sinal } = requisicao
@@ -25,6 +27,8 @@ export async function chamarApi<T>(caminho: string, requisicao: Requisicao = {})
 
   const headers = new Headers({ Accept: 'application/json' })
   if (corpo !== undefined) headers.set('Content-Type', 'application/json')
+  const sessao = lerSessao()
+  if (sessao) headers.set('Authorization', `Bearer ${sessao.token}`)
 
   let resposta: Response
   try {
@@ -39,6 +43,9 @@ export async function chamarApi<T>(caminho: string, requisicao: Requisicao = {})
     throw ApiError.semConexao()
   }
 
+  // Um 401 com token enviado significa token vencido ou inválido: a sessão acabou.
+  // Sem token (ex.: o próprio login), o 401 é só a resposta da chamada.
+  if (resposta.status === 401 && sessao) avisarSessaoExpirada()
   if (!resposta.ok) throw await ApiError.daResposta(resposta)
   if (resposta.status === 204) return undefined as T
   return (await resposta.json()) as T

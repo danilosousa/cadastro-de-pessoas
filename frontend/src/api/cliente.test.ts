@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
-import { API, servidor } from '@/test/servidor'
+import { describe, expect, it, vi } from 'vitest'
+import { aoExpirarSessao, salvarSessao } from '@/auth/sessao'
+import { API, naoAutenticado, servidor } from '@/test/servidor'
 import { chamarApi } from './cliente'
 import { ApiError } from './erro'
 
@@ -71,6 +72,29 @@ describe('chamarApi', () => {
     const erro = await chamarApi('/list').catch((e) => e)
 
     expect(erro).toMatchObject({ status: 502, titulo: 'Erro no servidor', erros: [] })
+  })
+
+  it('envia o token da sessão no header Authorization', async () => {
+    salvarSessao({ token: 'abc', usuario: 'admin', expiraEm: '2099-01-01T00:00:00Z' })
+    servidor.use(
+      http.get(`${API}/list`, ({ request }) =>
+        HttpResponse.json({ autorizacao: request.headers.get('Authorization') }),
+      ),
+    )
+
+    await expect(chamarApi('/list')).resolves.toEqual({ autorizacao: 'Bearer abc' })
+  })
+
+  it('um 401 sem token enviado (ex.: login errado) não é tratado como sessão expirada', async () => {
+    const ouvinte = vi.fn()
+    const cancelar = aoExpirarSessao(ouvinte)
+    servidor.use(http.post(`${API}/auth/login`, () => naoAutenticado()))
+
+    const erro = await chamarApi('/auth/login', { metodo: 'POST', corpo: {} }).catch((e) => e)
+    cancelar()
+
+    expect(erro).toMatchObject({ status: 401 })
+    expect(ouvinte).not.toHaveBeenCalled()
   })
 
   it('converte falha de rede em ApiError com status 0', async () => {

@@ -9,6 +9,24 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Bibliotecas em arquivos próprios: mudam pouco, então o navegador as mantém em cache
+        // entre deploys, e só o código do app (pequeno) é baixado de novo.
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router)[\\/]/,
+            },
+            { name: 'formularios', test: /node_modules[\\/](zod|react-hook-form|@hookform)[\\/]/ },
+            { name: 'bibliotecas', test: /node_modules[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     // Mesma origem: o navegador chama /api/... e o Vite repassa ao backend sem o prefixo.
