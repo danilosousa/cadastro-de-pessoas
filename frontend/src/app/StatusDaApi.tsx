@@ -17,7 +17,7 @@ export function StatusDaApi() {
   const online = data?.status === 'UP'
   return (
     <Badge variant={online ? 'secondary' : 'destructive'} role="status">
-      {online ? 'API online' : 'API indisponível'}
+      {online ? 'API funionando' : 'API indisponível'}
     </Badge>
   )
 }
