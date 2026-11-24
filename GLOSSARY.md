@@ -22,5 +22,8 @@ Termos do domínio e como aparecem no código. Use exatamente estes nomes em có
 | **Usuário** | Quem acessa a API (não confundir com **Pessoa**, que é o dado gerenciado). Tabela `usuario`. |
 | **Token** | JWT emitido em `POST /auth/login`, enviado em `Authorization: Bearer <token>`. Vale 1 h. |
 | **Rota pública** | Rota que não exige token: login, Swagger e health. Todas as outras são protegidas. |
+| **Perfil `dev`** | Perfil Spring que, além das migrations normais, carrega as pessoas de exemplo (`db/seed`). Ativo por padrão no Docker Compose. |
+| **Pessoas de exemplo** | 8 pessoas com CPFs válidos e nomes de várias origens, carregadas só no perfil `dev`. |
+| **Página** | Resposta paginada de `GET /list`: `content`, `page`, `size`, `totalElements`, `totalPages`. No código: `PaginaResponse`. |
 | **ProblemDetail** | Corpo de erro no padrão RFC 7807 (`title`, `status`, `detail`, `instance` + extras como `erros`). Ver ADR 0006. |
 | **Erro de campo** | Item de `erros[]` num ProblemDetail de validação: `{campo, mensagem}`. |
