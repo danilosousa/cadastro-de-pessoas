@@ -1,7 +1,6 @@
-import { act, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
-import { chamarApi } from '@/api/cliente'
 import { renderizarApp, sessaoDeTeste, TOKEN_DE_TESTE } from '@/test/renderizar'
 import { API, naoAutenticado, servidor } from '@/test/servidor'
 import { lerSessao } from './sessao'
@@ -97,13 +96,11 @@ describe('login e sessão', () => {
         return naoAutenticado()
       }),
     )
+    // A própria listagem chama /list ao abrir; o 401 dela encerra a sessão.
     const { router } = renderizarApp('/pessoas')
-    await screen.findByRole('heading', { name: 'Pessoas' })
 
-    await act(() => chamarApi('/list').catch(() => undefined))
-
-    expect(autorizacao).toBe(`Bearer ${TOKEN_DE_TESTE}`)
     expect(await screen.findByText('Sessão expirada')).toBeInTheDocument()
+    expect(autorizacao).toBe(`Bearer ${TOKEN_DE_TESTE}`)
     expect(router.state.location.pathname).toBe('/login')
     expect(lerSessao()).toBeNull()
   })
