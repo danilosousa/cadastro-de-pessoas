@@ -7,7 +7,7 @@
 `GET /findNacionalityByPerson/{documento}` precisa consultar a API pública nationalize.io e devolver "o nome da possível nacionalidade". A API:
 
 - devolve uma lista de `{country_id, probability}` (código ISO, não o nome);
-- tem plano gratuito com cota diária (~100 nomes/dia) e responde **429** quando ela acaba;
+- sem chave de API, permite só **10 consultas** por janela (headers `x-rate-limit-limit: 10` e `x-rate-limit-reset`, medidos em 2026-11-24) e responde **429** quando elas acabam;
 - pode ficar lenta ou fora do ar, como qualquer serviço externo.
 
 ## Decisão

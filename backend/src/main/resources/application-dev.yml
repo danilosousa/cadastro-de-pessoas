@@ -1,0 +1,5 @@
+# Perfil "dev": ativado com SPRING_PROFILES_ACTIVE=dev (o docker-compose.yml já faz isso).
+# Além das migrations normais, carrega as pessoas de exemplo de db/seed.
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed
