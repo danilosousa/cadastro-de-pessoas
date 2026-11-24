@@ -1,0 +1,20 @@
+# Ambiente local
+.env
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# SO
+.DS_Store
+Thumbs.db
+
+# Ferramentas de agente (skills, specs e tickets de trabalho) — fora da entrega.
+# Remova estas linhas se quiser versionar o planejamento junto com o código.
+.agents/
+.claude/
+skills-lock.json
+CLAUDE.md
+docs/agents/
+.scratch/

@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: prova-fullstack
+  datasource:
+    # Valores padrão batem com o docker-compose.yml da raiz.
+    # Em outro ambiente, sobrescreva com DB_URL / DB_USER / DB_PASSWORD.
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/prova}
+    username: ${DB_USER:prova}
+    password: ${DB_PASSWORD:prova}
+  jpa:
+    # O schema é responsabilidade do Flyway; o Hibernate só confere se bate.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
