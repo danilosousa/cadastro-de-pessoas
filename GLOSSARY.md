@@ -19,5 +19,8 @@ Termos do domínio e como aparecem no código. Use exatamente estes nomes em có
 
 | Termo | Definição |
 |---|---|
+| **Usuário** | Quem acessa a API (não confundir com **Pessoa**, que é o dado gerenciado). Tabela `usuario`. |
+| **Token** | JWT emitido em `POST /auth/login`, enviado em `Authorization: Bearer <token>`. Vale 1 h. |
+| **Rota pública** | Rota que não exige token: login, Swagger e health. Todas as outras são protegidas. |
 | **ProblemDetail** | Corpo de erro no padrão RFC 7807 (`title`, `status`, `detail`, `instance` + extras como `erros`). Ver ADR 0006. |
 | **Erro de campo** | Item de `erros[]` num ProblemDetail de validação: `{campo, mensagem}`. |

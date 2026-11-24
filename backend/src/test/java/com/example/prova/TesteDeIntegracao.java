@@ -11,7 +11,8 @@ import java.lang.annotation.Target;
 
 /**
  * Meta-anotação para testes de integração: aplicação inteira + MockMvc
- * + Postgres real via Testcontainers + WireMock no lugar da nationalize.io.
+ * (já autenticado com um token real) + Postgres real via Testcontainers
+ * + WireMock no lugar da nationalize.io.
  *
  * <p>Todas as classes que a usam compartilham o mesmo contexto Spring
  * (e os mesmos servidores), o que deixa a suíte rápida.
@@ -20,6 +21,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import({TestcontainersConfiguration.class, WireMockConfiguration.class})
+@Import({TestcontainersConfiguration.class, WireMockConfiguration.class, AutenticacaoDeTesteConfiguration.class})
 public @interface TesteDeIntegracao {
 }

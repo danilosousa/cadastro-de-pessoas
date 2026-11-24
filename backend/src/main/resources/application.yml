@@ -18,11 +18,25 @@ spring:
     # Previsões de nacionalidade: 24h, até 1000 nomes em memória (ADR 0007).
     cache-names: nacionalidades
     caffeine:
-      spec: maximumSize=1000,expireAfterWrite=24h
+      spec: maximumSize=1000,expireAfterWrite=24h,recordStats
 
 nationalize:
   url: ${NATIONALIZE_URL:https://api.nationalize.io}
   timeout: ${NATIONALIZE_TIMEOUT:3s}
+
+auth:
+  # Usuário criado na inicialização se ainda não existir (ADR 0008).
+  admin:
+    usuario: ${ADMIN_USUARIO:admin}
+    senha: ${ADMIN_SENHA:admin123}
+  jwt:
+    # Chave HS256: no mínimo 32 caracteres. O padrão serve só para desenvolvimento;
+    # em qualquer ambiente compartilhado defina JWT_SEGREDO.
+    segredo: ${JWT_SEGREDO:dev-only-troque-este-segredo-com-32+-caracteres}
+    expiracao: ${JWT_EXPIRACAO:1h}
+
+cors:
+  origens-permitidas: ${CORS_ORIGENS:http://localhost:5173}
 
 management:
   endpoints:
