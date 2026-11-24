@@ -17,7 +17,7 @@ O enunciado pede um `{Parametro}`, à escolha de quem faz a prova, para consulta
 ## Alternativas consideradas
 
 - **`id` numérico ou UUID na URL**: simples, mas sem significado para quem usa e expõe detalhes internos (ids sequenciais revelam volume e são enumeráveis).
-- **Cédula colombiana**: a Quipux é colombiana, mas a cédula não tem dígito verificador público; validar só "5 a 15 dígitos" é uma validação pobre. O CPF permite demonstrar uma validação de padrão não trivial.
+- **Documento de identidade de outro país** (ex.: a *cédula* colombiana): a cédula não tem dígito verificador público; validar só "5 a 15 dígitos" é uma validação pobre. O CPF permite demonstrar uma validação de padrão não trivial.
 - **`@CPF` do Hibernate Validator** (`org.hibernate.validator.constraints.br.CPF`): existe, mas escrever a nossa mostra como criar uma constraint customizada e nos deixa controlar a regra da máscara (`permitirMascara`).
 
 ## Consequências

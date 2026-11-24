@@ -18,7 +18,7 @@ A prova é Fullstack: haverá um backend Java e, depois, uma interface web. Dent
 └── docs/               ADRs, guia de estudo, docs para agentes
 ```
 
-**Backend**: pacotes **por funcionalidade** sob `com.quipux.prova`:
+**Backend**: pacotes **por funcionalidade** sob `com.example.prova`:
 
 - `pessoa/` — cadastro, consulta, listagem e exclusão
 - `nacionalidade/` — integração com a nationalize.io
