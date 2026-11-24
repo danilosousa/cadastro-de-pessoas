@@ -1,5 +1,6 @@
 package com.quipux.prova.pessoa;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -14,20 +15,24 @@ import jakarta.validation.constraints.Size;
  */
 public record RegistrarPessoaRequest(
 
+        @Schema(description = "CPF com ou sem máscara", example = "529.982.247-25")
         @NotBlank(message = "é obrigatório")
         @CPF(permitirMascara = true)
         String documento,
 
+        @Schema(description = "Apenas letras (acentos, espaço, hífen e apóstrofo permitidos)", example = "Nathaniel")
         @NotBlank(message = "é obrigatório")
         @Size(max = 100, message = "deve ter no máximo 100 caracteres")
         @Pattern(regexp = PADRAO_NOME, message = "deve conter apenas letras")
         String nome,
 
+        @Schema(description = "Apenas letras (acentos, espaço, hífen e apóstrofo permitidos)", example = "Souza")
         @NotBlank(message = "é obrigatório")
         @Size(max = 100, message = "deve ter no máximo 100 caracteres")
         @Pattern(regexp = PADRAO_NOME, message = "deve conter apenas letras")
         String sobrenome,
 
+        @Schema(example = "nathaniel@exemplo.com")
         @NotBlank(message = "é obrigatório")
         @Size(max = 255, message = "deve ter no máximo 255 caracteres")
         @Email(message = "deve ser um e-mail válido")

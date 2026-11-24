@@ -1,5 +1,6 @@
 package com.quipux.prova.pessoa;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +38,9 @@ public class PessoaController {
 
     /** Validação distintiva: @CPF no parâmetro de rota (só dígitos, dígitos verificadores corretos). */
     @GetMapping("/list/{documento}")
-    public PessoaResponse buscar(@PathVariable @CPF String documento) {
+    public PessoaResponse buscar(
+            @Parameter(description = "CPF só com dígitos", example = "52998224725")
+            @PathVariable @CPF String documento) {
         return PessoaResponse.de(service.buscarPorDocumento(documento));
     }
 }
