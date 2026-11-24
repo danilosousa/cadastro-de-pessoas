@@ -15,7 +15,7 @@ describe('App', () => {
   it('mostra que a API está online', async () => {
     renderizarApp('/pessoas')
 
-    expect(await screen.findByText('API funionando')).toBeInTheDocument()
+    expect(await screen.findByText('API funcionando')).toBeInTheDocument()
   })
 
   it('mostra que a API está indisponível', async () => {
