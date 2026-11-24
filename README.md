@@ -9,8 +9,82 @@ Tudo sobe com `docker compose up --build`.
 
 ---
 
+## Roteiro de avaliação (cerca de 10 minutos)
+
+Pré-requisito: **Docker** com Docker Compose. Nada mais precisa estar instalado.
+
+### 1. Subir tudo
+
+```bash
+docker compose up --build
+```
+
+Espere os três serviços (`postgres`, `backend`, `frontend`) ficarem de pé: cerca de 1 a 2 minutos na primeira vez. Se alguma porta já estiver em uso, troque-a: `APP_PORT=8081 WEB_PORT=3001 docker compose up --build`.
+
+### 2. Interface web: <http://localhost:3000>
+
+| # | Faça | Confira |
+|---|---|---|
+| 1 | Abra <http://localhost:3000> | A **lista de pessoas** abre direto, sem pedir login. O selo no canto do cabeçalho indica que a API está no ar |
+| 2 | Observe a lista | **8 pessoas de exemplo**, em ordem alfabética, com o CPF mascarado; abaixo, "Página 1 de 1 · 8 pessoas" |
+| 3 | Em **Buscar por CPF**, digite `12345678900` e clique em Buscar | "CPF inválido" (os dígitos verificadores são conferidos no navegador) |
+| 4 | Busque `260.185.736-60` | Abre o detalhe de **Kenji Tanaka** |
+| 5 | Clique em **Consultar nacionalidade** | **Japão (JP)**, com a probabilidade em porcentagem. Se aparecer "Cota de consultas esgotada", veja a observação abaixo |
+| 6 | Volte para a lista e clique em **Registrar pessoa**. Clique em Registrar com tudo vazio | "É obrigatório" nos quatro campos |
+| 7 | Preencha CPF `52998224724`, nome `Maria2`, e-mail `maria@` | "Deve ser um CPF válido", "Deve conter apenas letras", "Deve ser um e-mail válido" |
+| 8 | Corrija para CPF `52998224725` (a máscara aparece ao digitar), nome `Maria Clara`, sobrenome `Souza`, e-mail `maria@exemplo.com`, e registre | Vai para o detalhe, com o aviso "Pessoa registrada" |
+| 9 | Volte para a lista | Maria Clara Souza aparece; agora são 9 pessoas |
+| 10 | Clique em Registrar pessoa de novo, com o **mesmo CPF** e outro e-mail | "Já existe uma pessoa registrada com este documento.", no campo CPF (409 da API) |
+| 11 | Abra o detalhe de Maria Clara, clique em **Excluir** e depois em **Cancelar** | Nada muda |
+| 12 | Clique em **Excluir** e confirme | Volta para a lista com "Pessoa excluída: Maria Clara Souza"; são 8 pessoas de novo |
+| 13 | Abra <http://localhost:3000/pessoas/11144477735> | "Pessoa não encontrada" (CPF válido, não cadastrado) |
+
+> **Observação sobre a nacionalidade:** sem chave de API, a nationalize.io permite só **10 consultas** por dia a partir de cada endereço IP. Esgotada a cota, a interface mostra "Cota de consultas esgotada" e a API responde **503**: é o tratamento de erro esperado. Para ampliar a cota, defina `NATIONALIZE_API_KEY` num arquivo `.env` ([Configuração](#configuração)).
+
+### 3. API: autenticação e validações (Swagger ou curl)
+
+**Pelo Swagger** (<http://localhost:8080/swagger-ui.html>): execute `POST /auth/login` (o exemplo `admin` / `admin123` já vem preenchido), copie o `token`, clique em **Authorize**, cole e teste as rotas.
+
+**Pelo terminal:**
+
+```bash
+# Sem token: 401
+curl -i http://localhost:8080/list
+
+# Login: guarda o token
+TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"usuario":"admin","senha":"admin123"}' | sed 's/.*"token":"\([^"]*\)".*/\1/')
+```
+
+Cada rota tem uma **validação diferente** (requisito 1g). Com o token:
+
+| Rota | Comando | Esperado |
+|---|---|---|
+| `POST /registrarName`: corpo (CPF, letras, e-mail) | `curl -i -X POST http://localhost:8080/registrarName -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"documento":"529.982.247-24","nome":"Maria2","sobrenome":"","email":"maria@"}'` | **400** com a lista `erros` por campo |
+| `GET /list`: limites numéricos | `curl -i "http://localhost:8080/list?size=500" -H "Authorization: Bearer $TOKEN"` | **400**: `size` "deve estar entre 1 e 100" |
+| `GET /list/{documento}`: CPF com dígitos verificadores | `curl -i http://localhost:8080/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **400**: "deve ser um CPF válido" |
+| `DELETE /list/{documento}`: só o formato (11 dígitos) | `curl -i -X DELETE http://localhost:8080/list/123 -H "Authorization: Bearer $TOKEN"` | **400**: "deve conter exatamente 11 dígitos" |
+| | `curl -i -X DELETE http://localhost:8080/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **404**: o formato passa, e a pessoa não existe |
+| `GET /findNacionalityByPerson/{documento}`: CPF + pessoa registrada | `curl -i http://localhost:8080/findNacionalityByPerson/11144477735 -H "Authorization: Bearer $TOKEN"` | **404**: CPF válido, não cadastrado |
+| | `curl -i http://localhost:8080/findNacionalityByPerson/26018573660 -H "Authorization: Bearer $TOKEN"` | **200** com Japão, ou **503** se a cota acabou |
+
+Todos os erros seguem o formato **RFC 7807** (`title`, `status`, `detail` e, nos de validação, `erros`).
+
+### 4. Testes automatizados (opcional)
+
+| | Comando | Requer |
+|---|---|---|
+| Backend (79 testes, PostgreSQL real via Testcontainers) | `cd backend && ./mvnw verify` | JDK 21 e Docker |
+| Frontend (85 testes) | `cd frontend && npm ci && npm test` | Node 22 |
+
+Para parar tudo: `Ctrl+C` e `docker compose down` (`down -v` apaga também os dados).
+
+---
+
 ## Sumário
 
+- [Roteiro de avaliação](#roteiro-de-avaliação-cerca-de-10-minutos)
 - [Como rodar](#como-rodar)
 - [Como usar a interface](#como-usar-a-interface)
 - [Como usar a API](#como-usar-a-api)
