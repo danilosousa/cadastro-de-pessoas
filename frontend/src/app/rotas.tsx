@@ -1,4 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router'
+import { PaginaDetalhePessoa } from '@/pessoas/PaginaDetalhePessoa'
 import { PaginaPessoas } from '@/pessoas/PaginaPessoas'
 import { PaginaRegistrarPessoa } from '@/pessoas/PaginaRegistrarPessoa'
 import { Layout } from './Layout'
@@ -12,6 +13,7 @@ export const rotas: RouteObject[] = [
       { index: true, element: <Navigate to="/pessoas" replace /> },
       { path: 'pessoas', element: <PaginaPessoas /> },
       { path: 'pessoas/nova', element: <PaginaRegistrarPessoa /> },
+      { path: 'pessoas/:documento', element: <PaginaDetalhePessoa /> },
       { path: '*', element: <PaginaNaoEncontrada /> },
     ],
   },

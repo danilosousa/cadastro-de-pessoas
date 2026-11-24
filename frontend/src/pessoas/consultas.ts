@@ -41,3 +41,23 @@ export function useRegistrarPessoa() {
     },
   })
 }
+
+/** `GET /list/{documento}`. */
+export function usePessoa(documento: string) {
+  return useQuery({
+    queryKey: chavesDePessoas.detalhe(documento),
+    queryFn: ({ signal }) => chamarApi<PessoaResponse>(`/list/${documento}`, { sinal: signal }),
+  })
+}
+
+/** `DELETE /list/{documento}`. Remove o detalhe do cache e marca as listas como desatualizadas. */
+export function useExcluirPessoa() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (documento: string) => chamarApi<void>(`/list/${documento}`, { metodo: 'DELETE' }),
+    onSuccess: async (_, documento) => {
+      queryClient.removeQueries({ queryKey: chavesDePessoas.detalhe(documento) })
+      await queryClient.invalidateQueries({ queryKey: chavesDePessoas.listas() })
+    },
+  })
+}

@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, UserPlus } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useLocation, useSearchParams } from 'react-router'
 import type { PaginaResponse, PessoaResponse } from '@/api/tipos'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,7 @@ import {
 import { mascararCpf } from '@/shared/cpf'
 import { BuscaPorCpf } from './BuscaPorCpf'
 import { usePessoas } from './consultas'
+import type { EstadoAposExclusao } from './ExcluirPessoa'
 
 /** `?page=` na URL começa em 1. Qualquer valor inválido vira 1. */
 function lerPagina(valor: string | null): number {
@@ -27,6 +28,7 @@ export function PaginaPessoas() {
   const [parametros] = useSearchParams()
   const pagina = lerPagina(parametros.get('page'))
   const consulta = usePessoas(pagina)
+  const excluida = (useLocation().state as EstadoAposExclusao | null)?.excluida
 
   return (
     <section className="flex flex-col gap-6">
@@ -39,6 +41,12 @@ export function PaginaPessoas() {
           </Link>
         </Button>
       </div>
+
+      {excluida && (
+        <Alert role="status">
+          <AlertTitle>Pessoa excluída: {excluida}</AlertTitle>
+        </Alert>
+      )}
 
       <BuscaPorCpf />
 
