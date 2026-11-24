@@ -13,10 +13,13 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
  * sabe que está sendo testado: ele só fala HTTP com outra URL.
  */
 @TestConfiguration(proxyBeanMethods = false)
-class WireMockConfiguration {
+public class WireMockConfiguration {
 
     /** Timeout curto nos testes para o cenário de lentidão não deixar a suíte lenta. */
     static final String TIMEOUT_DE_TESTE = "500ms";
+
+    /** Chave falsa: os testes verificam que ela é enviada no parâmetro {@code apikey}. */
+    public static final String API_KEY_DE_TESTE = "chave-de-teste";
 
     @Bean(destroyMethod = "stop")
     WireMockServer nationalizeFalso() {
@@ -30,6 +33,7 @@ class WireMockConfiguration {
         return registro -> {
             registro.add("nationalize.url", nationalizeFalso::baseUrl);
             registro.add("nationalize.timeout", () -> TIMEOUT_DE_TESTE);
+            registro.add("nationalize.api-key", () -> API_KEY_DE_TESTE);
         };
     }
 }

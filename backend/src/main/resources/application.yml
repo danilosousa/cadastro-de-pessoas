@@ -23,6 +23,8 @@ spring:
 nationalize:
   url: ${NATIONALIZE_URL:https://api.nationalize.io}
   timeout: ${NATIONALIZE_TIMEOUT:3s}
+  # Opcional. Sem chave: 10 consultas gratuitas. Chave grátis em https://nationalize.io
+  api-key: ${NATIONALIZE_API_KEY:}
 
 auth:
   # Usuário criado na inicialização se ainda não existir (ADR 0008).

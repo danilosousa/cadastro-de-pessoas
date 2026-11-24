@@ -38,3 +38,11 @@
 - Nomes repetidos (ex.: várias "Maria") consomem a cota uma única vez por dia.
 - O cache é local: com várias instâncias, cada uma teria o seu (aceitável no escopo).
 - Os testes substituem a API por **WireMock** só trocando `nationalize.url`; o código de produção não tem ganchos de teste.
+
+## Adendo (2026-11-24): chave de API opcional
+
+A cota sem chave (10 consultas) se esgota rápido numa avaliação. A nationalize.io aceita uma chave gratuita no parâmetro `apikey`.
+
+- `NATIONALIZE_API_KEY` é **opcional**: vazia, nada muda; preenchida, a chave é enviada em toda consulta.
+- A chave **nunca é logada**; o log de inicialização só diz se há chave ou não.
+- Chave recusada pela API (401/403) cai no mesmo caminho de "serviço indisponível" (**502**): o problema é da nossa integração, não do cliente da nossa API.

@@ -18,7 +18,10 @@ import java.util.List;
  *
  * <p>Traduz falhas da API externa em exceções com status HTTP próprio:
  * 429 (cota esgotada) → {@link NationalizeLimiteExcedidoException} (503);
- * timeout, erro de rede ou 5xx → {@link NationalizeIndisponivelException} (502).
+ * timeout, erro de rede, 5xx ou outro 4xx (ex.: chave de API inválida)
+ * → {@link NationalizeIndisponivelException} (502).
+ *
+ * <p>A chave de API, quando configurada, nunca é escrita no log.
  */
 @Component
 public class NationalizeClient {
@@ -26,6 +29,7 @@ public class NationalizeClient {
     private static final Logger log = LoggerFactory.getLogger(NationalizeClient.class);
 
     private final RestClient http;
+    private final NationalizeProperties props;
 
     public NationalizeClient(RestClient.Builder builder, NationalizeProperties props) {
         SimpleClientHttpRequestFactory fabrica = new SimpleClientHttpRequestFactory();
@@ -35,6 +39,8 @@ public class NationalizeClient {
                 .baseUrl(props.url().toString())
                 .requestFactory(fabrica)
                 .build();
+        this.props = props;
+        log.info("nationalize.io: {}", props.temApiKey() ? "usando chave de API" : "sem chave de API (cota gratuita de 10 consultas)");
     }
 
     /** Um país provável segundo a API, com a probabilidade entre 0 e 1. */
@@ -56,7 +62,13 @@ public class NationalizeClient {
         log.info("Consultando nationalize.io para '{}'", prenome);
         try {
             RespostaNationalize resposta = http.get()
-                    .uri(uri -> uri.queryParam("name", prenome).build())
+                    .uri(uri -> {
+                        uri.queryParam("name", prenome);
+                        if (props.temApiKey()) {
+                            uri.queryParam("apikey", props.apiKey());
+                        }
+                        return uri.build();
+                    })
                     .retrieve()
                     .body(RespostaNationalize.class);
             return resposta == null || resposta.country() == null ? List.of() : resposta.country();

@@ -1,7 +1,8 @@
 package com.example.prova.nacionalidade;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.example.prova.TesteDeIntegracao;
+import com.example.prova.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.example.prova.pessoa.CpfsDeTeste;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -185,6 +186,32 @@ class PreverNacionalidadeIntegrationTest {
         prever(CPF).andExpect(status().isNotFound());
 
         nationalize.verify(0, getRequestedFor(urlPathEqualTo("/")));
+    }
+
+    @Test
+    void enviaAChaveDeApiConfigurada() throws Exception {
+        registrar(CPF, "Nathaniel");
+        nationalizeResponde("nathaniel", """
+                {"count":1,"name":"nathaniel","country":[{"country_id":"US","probability":0.3}]}
+                """);
+
+        prever(CPF).andExpect(status().isOk());
+
+        nationalize.verify(1, getRequestedFor(urlPathEqualTo("/"))
+                .withQueryParam("name", equalTo("nathaniel"))
+                .withQueryParam("apikey", equalTo(WireMockConfiguration.API_KEY_DE_TESTE)));
+    }
+
+    @Test
+    void chaveDeApiRecusadaRetorna502() throws Exception {
+        registrar(CPF, "Nathaniel");
+        nationalize.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(401)
+                .withHeader("Content-Type", "application/json")
+                .withBody("{\"error\":\"Invalid API key\"}")));
+
+        prever(CPF)
+                .andExpect(status().isBadGateway())
+                .andExpect(jsonPath("$.title").value("Serviço externo indisponível"));
     }
 
     @Test
