@@ -2,6 +2,7 @@ package com.quipux.prova.shared.erro;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Comparator;
@@ -64,6 +66,16 @@ public class TratadorGlobalDeErros extends ResponseEntityExceptionHandler {
                                 erro.getDefaultMessage())))
                 .sorted(Comparator.comparing(ErroDeCampo::campo).thenComparing(ErroDeCampo::mensagem))
                 .toList();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(problemaDeValidacao(erros));
+    }
+
+    /** Parâmetro com tipo errado, p.ex. {@code GET /list?page=abc}. */
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(
+            TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        String campo = ex instanceof MethodArgumentTypeMismatchException mismatch ? mismatch.getName() : ex.getPropertyName();
+        List<ErroDeCampo> erros = List.of(new ErroDeCampo(campo, "tipo inválido"));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(problemaDeValidacao(erros));
     }
 

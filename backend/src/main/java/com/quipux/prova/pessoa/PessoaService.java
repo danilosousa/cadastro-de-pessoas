@@ -1,5 +1,8 @@
 package com.quipux.prova.pessoa;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +43,21 @@ public class PessoaService {
     public Pessoa buscarPorDocumento(String documento) {
         return repository.findByDocumento(documento)
                 .orElseThrow(() -> new PessoaNaoEncontradaException(documento));
+    }
+
+    /**
+     * Lista pessoas paginadas, em ordem alfabética de nome e sobrenome.
+     * O documento desempata, garantindo ordem estável entre páginas.
+     */
+    @Transactional(readOnly = true)
+    public Page<Pessoa> listar(int pagina, int tamanho) {
+        Sort ordem = Sort.by("nome", "sobrenome", "documento");
+        return repository.findAll(PageRequest.of(pagina, tamanho, ordem));
+    }
+
+    @Transactional
+    public void excluir(String documento) {
+        Pessoa pessoa = buscarPorDocumento(documento);
+        repository.delete(pessoa);
     }
 }
