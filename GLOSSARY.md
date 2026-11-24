@@ -27,3 +27,15 @@ Termos do domínio e como aparecem no código. Use exatamente estes nomes em có
 | **Página** | Resposta paginada de `GET /list`: `content`, `page`, `size`, `totalElements`, `totalPages`. No código: `PaginaResponse`. |
 | **ProblemDetail** | Corpo de erro no padrão RFC 7807 (`title`, `status`, `detail`, `instance` + extras como `erros`). Ver ADR 0006. |
 | **Erro de campo** | Item de `erros[]` num ProblemDetail de validação: `{campo, mensagem}`. |
+
+## Frontend
+
+| Termo | Definição |
+|---|---|
+| **Interface** | A SPA em React (`frontend/`). Evite: "front", "client" em nomes de código. |
+| **Login automático** | A interface obtém o token sozinha com as credenciais de build (`VITE_API_USUARIO` / `VITE_API_SENHA`), sem tela de login. Ver ADR 0012. No código: `ProvedorDeAutenticacao`. |
+| **Sessão** | O token guardado no `sessionStorage` com `usuario` e `expiraEm`. No código: `Sessao`, `auth/sessao.ts`. |
+| **Conexão com a API** | Estado do login automático: `conectando`, `conectada` ou `falhou`. No código: `EstadoDaConexao`, `ConexaoComApi`. |
+| **Proxy `/api`** | Prefixo que o navegador usa para falar com o backend na mesma origem; o Vite ou o nginx remove o prefixo e repassa. Ver ADR 0010. |
+| **ApiError** | Erro de qualquer chamada à API: `status`, `titulo`, `detalhe` e `erros` lidos do ProblemDetail. Status 0 = sem conexão. |
+| **Chaves de pessoa** | Endereços no cache do TanStack Query: `['pessoas', 'lista', pagina]`, `['pessoas', 'detalhe', documento]`. No código: `chavesDePessoas`. |

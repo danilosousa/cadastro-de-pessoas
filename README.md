@@ -1,14 +1,18 @@
-# Prova técnica Fullstack — API de pessoas
+# Prova técnica Fullstack — Cadastro de pessoas
 
-Backend em **Java 21 + Spring Boot 4.1** para registrar, consultar, listar e excluir pessoas, prever a provável nacionalidade de cada uma (via [nationalize.io](https://nationalize.io)) e proteger tudo com **JWT**.
+Sistema para registrar, consultar, listar e excluir pessoas e prever a provável nacionalidade de cada uma (via [nationalize.io](https://nationalize.io)):
 
-> Status: **backend concluído**. A interface web está em desenvolvimento em `frontend/`.
+- **Backend** em **Java 21 + Spring Boot 4.1**, com PostgreSQL e todas as rotas protegidas por **JWT**.
+- **Interface web** em **React 19 + TypeScript**, servida por nginx, que abre direto na listagem.
+
+Tudo sobe com `docker compose up --build`.
 
 ---
 
 ## Sumário
 
 - [Como rodar](#como-rodar)
+- [Como usar a interface](#como-usar-a-interface)
 - [Como usar a API](#como-usar-a-api)
 - [Requisitos do enunciado → onde foram atendidos](#requisitos-do-enunciado--onde-foram-atendidos)
 - [Rotas](#rotas)
@@ -28,17 +32,20 @@ Pré-requisito: **Docker** com Docker Compose.
 docker compose up --build
 ```
 
-Quando o log mostrar `Started ProvaFullstackApplication` (cerca de 1 minuto na primeira vez):
+Quando os três serviços estiverem de pé (cerca de 1 a 2 minutos na primeira vez):
 
 | O quê | Onde |
 |---|---|
-| Swagger (testar no navegador) | <http://localhost:8080/swagger-ui.html> |
+| **Interface web** | <http://localhost:3000> |
+| Swagger (testar a API no navegador) | <http://localhost:8080/swagger-ui.html> |
 | Health | <http://localhost:8080/actuator/health> |
 | Usuário / senha padrão | `admin` / `admin123` |
 
 O compose sobe no perfil `dev`, que já cadastra **8 pessoas de exemplo** (Nathaniel, Giulia, Kenji, Olumide, Sofía, Hans, Pierre, João).
 
 Para parar: `Ctrl+C` ou `docker compose down` (`down -v` apaga também os dados).
+
+> Se a porta 8080, 5432 ou 3000 já estiver em uso, troque-a: `APP_PORT=8081 WEB_PORT=3001 docker compose up --build`.
 
 ### Opção 2: backend local (desenvolvimento)
 
@@ -51,6 +58,32 @@ cd backend
 ```
 
 Para carregar as pessoas de exemplo também nesse modo, use `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`.
+
+### Opção 3: frontend local (desenvolvimento)
+
+Pré-requisitos: **Node 22** e o backend rodando na porta 8080 (opção 2).
+
+```bash
+cd frontend
+npm ci
+npm run dev                       # http://localhost:5173
+```
+
+O Vite repassa `/api/*` ao backend (`API_URL` muda o destino).
+
+---
+
+## Como usar a interface
+
+Abra <http://localhost:3000> (ou <http://localhost:5173> na opção 3). A interface abre direto na listagem: ela faz o login na API sozinha, com as credenciais do admin ([ADR 0012](docs/adr/0012-login-automatico-no-frontend.md)).
+
+| Tela | O que dá para fazer | Rota da API usada |
+|---|---|---|
+| `/pessoas` | Listar com paginação (`?page=` na URL), buscar por CPF | `GET /list` |
+| `/pessoas/nova` | Registrar, com máscara de CPF e validação no cliente; erros do servidor aparecem no campo | `POST /registrarName` |
+| `/pessoas/{cpf}` | Ver os dados, consultar a nacionalidade sob demanda, excluir com confirmação | `GET /list/{cpf}`, `GET /findNacionalityByPerson/{cpf}`, `DELETE /list/{cpf}` |
+
+O selo no cabeçalho mostra se a API está no ar.
 
 ---
 
@@ -114,7 +147,7 @@ Resumo, com as minhas palavras, do que a prova pede e de como cada item foi reso
 | 1f | `GET /findNacionalityByPerson/{parametro}`: consumir a nationalize.io e devolver o **nome** da nacionalidade provável | ✅ busca a pessoa, envia o primeiro nome, escolhe o país mais provável e devolve o nome **em português**, mais código ISO e probabilidade ([ADR 0007](docs/adr/0007-integracao-nationalize-com-cache.md)) |
 | 1g | **Cada API** com pelo menos uma validação de tipo **diferente** | ✅ ver a coluna "Validação" na [tabela de rotas](#rotas): cada rota tem a sua |
 | 2 | Autenticação na API mais crítica **ou** em todas | ✅ **todas** protegidas por **JWT** (login com usuário e senha) ([ADR 0008](docs/adr/0008-autenticacao-jwt.md)) |
-| 3 | Pelo menos uma interface (de preferência web) consumindo uma das APIs | 🚧 em desenvolvimento em `frontend/`. Enquanto isso, o **Swagger UI** permite usar todas as rotas pelo navegador |
+| 3 | Pelo menos uma interface (de preferência web) consumindo uma das APIs | ✅ **interface web em React** consumindo **todas** as rotas: listagem paginada, busca, registro, detalhe, nacionalidade e exclusão ([ADR 0009](docs/adr/0009-stack-do-frontend.md)). O Swagger UI também está disponível |
 | — | Entrega por repositório Git ou `.zip` | Este repositório, com histórico de commits incremental |
 
 ---
@@ -164,6 +197,8 @@ Resposta de nacionalidade:
 
 ## Testes e cobertura
 
+### Backend
+
 ```bash
 cd backend
 ./mvnw verify        # requer Docker (Testcontainers)
@@ -173,6 +208,20 @@ cd backend
 - A nationalize.io é substituída por **WireMock** nos testes: cobre sucesso, lista vazia, 429, 5xx, timeout, chave de API e cache, sem depender da internet.
 - Autenticação testada com token válido, adulterado, expirado, de outro emissor e ausente, além de CORS.
 - **Cobertura** (JaCoCo): ~95% das linhas e ~80% dos ramos. Relatório em `backend/target/site/jacoco/index.html`.
+
+### Frontend
+
+```bash
+cd frontend
+npm ci
+npm test             # Vitest
+npm run lint         # ESLint
+npm run build        # checa os tipos (tsc) e gera o build
+```
+
+- **85 testes** com Vitest + Testing Library: as telas são renderizadas com as rotas reais e a API é simulada no nível da rede com **MSW** (o paralelo do WireMock). Uma chamada sem resposta simulada falha o teste.
+- Cobrem login automático e renovação do token, paginação pela URL, estados vazio e de erro, validação do formulário e erros do servidor por campo, 409, 404, nacionalidade (com país, sem previsão, 502, 503) e exclusão.
+- A regra do CPF do cliente usa **os mesmos casos de teste** do `DocumentoCpfTest` do backend.
 
 ---
 
@@ -188,6 +237,18 @@ backend/src/main/java/com/example/prova/
 
 Pacotes **por funcionalidade**, com controller → service → repository em cada um ([ADR 0004](docs/adr/0004-estrutura-do-repositorio-e-pacotes.md)).
 
+```
+frontend/src/
+├── api/             cliente HTTP (fetch), ApiError, tipos dos DTOs
+├── auth/            login automático, token no sessionStorage
+├── pessoas/         lista, busca, registro, detalhe, exclusão
+├── nacionalidade/   painel de nacionalidade
+├── shared/          regra do CPF, componentes de formulário
+└── components/ui/   componentes do shadcn/ui
+```
+
+O navegador só chama `/api/...` na própria origem; o nginx (no Docker) ou o Vite (no desenvolvimento) repassa ao backend, sem CORS ([ADR 0010](docs/adr/0010-proxy-api-e-mesma-origem.md)).
+
 **Decisões registradas (ADRs)**: [`docs/adr/`](docs/adr/README.md)
 
 | ADR | Decisão |
@@ -200,6 +261,10 @@ Pacotes **por funcionalidade**, com controller → service → repository em cad
 | [0006](docs/adr/0006-erros-em-rfc-7807.md) | Erros em RFC 7807 (ProblemDetail) |
 | [0007](docs/adr/0007-integracao-nationalize-com-cache.md) | Integração com a nationalize.io, falhas e cache |
 | [0008](docs/adr/0008-autenticacao-jwt.md) | Autenticação JWT em todas as APIs |
+| [0009](docs/adr/0009-stack-do-frontend.md) | Stack do frontend: React + Vite + TypeScript |
+| [0010](docs/adr/0010-proxy-api-e-mesma-origem.md) | Proxy `/api` e mesma origem |
+| [0011](docs/adr/0011-token-no-sessionstorage.md) | Token JWT no `sessionStorage` |
+| [0012](docs/adr/0012-login-automatico-no-frontend.md) | Login automático no frontend |
 
 Vocabulário do domínio: [`GLOSSARY.md`](GLOSSARY.md). Guia de estudo detalhado, capítulo a capítulo: [`docs/guia/`](docs/guia/README.md).
 
@@ -214,7 +279,11 @@ Vocabulário do domínio: [`GLOSSARY.md`](GLOSSARY.md). Guia de estudo detalhado
 | Cliente HTTP / cache | `RestClient` + Caffeine |
 | Documentação da API | springdoc-openapi (Swagger UI) |
 | Testes | JUnit 5, MockMvc, Testcontainers, WireMock, JaCoCo |
-| Empacotamento | Maven Wrapper, Docker multi-stage, Docker Compose |
+| Interface | React 19, TypeScript, Vite, React Router, TanStack Query |
+| Formulários / UI | React Hook Form + Zod, Tailwind CSS 4 + shadcn/ui |
+| Testes do frontend | Vitest, Testing Library, MSW |
+| Servidor da interface | nginx (estáticos + proxy `/api`) |
+| Empacotamento | Maven Wrapper, npm, Docker multi-stage, Docker Compose |
 
 ---
 
@@ -232,6 +301,9 @@ Todas as configurações têm padrão de desenvolvimento e podem ser sobrescrita
 | `NATIONALIZE_API_KEY` | vazio | chave opcional da nationalize.io (sem ela: 10 consultas) |
 | `NATIONALIZE_URL` / `NATIONALIZE_TIMEOUT` | `https://api.nationalize.io` / `3s` | integração externa |
 | `SPRING_PROFILES_ACTIVE` | `dev` no compose | `dev` carrega as pessoas de exemplo |
-| `APP_PORT` / `DB_PORT` | `8080` / `5432` | portas no host (compose) |
+| `WEB_PORT` / `APP_PORT` / `DB_PORT` | `3000` / `8080` / `5432` | portas no host (compose) |
+| `VITE_API_USUARIO` / `VITE_API_SENHA` | `admin` / `admin123` | credenciais do login automático da interface, embutidas no build; o compose usa `ADMIN_USUARIO` / `ADMIN_SENHA` |
 
 > ⚠️ Os padrões de senha e de `JWT_SEGREDO` existem para a avaliação rodar sem configuração. Não os use em produção.
+
+> ⚠️ **A interface não pede login**: ela entra na API sozinha, e as credenciais ficam visíveis no JavaScript entregue ao navegador. Foi uma escolha para a demonstração; a API continua exigindo token de qualquer outro cliente. Em produção, voltaria uma tela de login ou um provedor de identidade ([ADR 0012](docs/adr/0012-login-automatico-no-frontend.md)).

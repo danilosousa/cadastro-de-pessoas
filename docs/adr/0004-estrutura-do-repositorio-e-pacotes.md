@@ -38,3 +38,7 @@ Cada pacote contém seu controller, service, repository e DTOs.
 
 - Para entender uma funcionalidade basta abrir um pacote, como um package por domínio em Go.
 - Classes podem ser package-private, expondo só o necessário.
+
+## Adendo (2026-11-24): frontend
+
+`frontend/` deixou de ser um espaço reservado: contém a interface em React + Vite + TypeScript (ADR 0009), organizada também por funcionalidade (`api/`, `auth/`, `pessoas/`, `nacionalidade/`, `shared/`), com o próprio `Dockerfile` e a configuração do nginx.
