@@ -11,6 +11,9 @@ Termos do domínio e como aparecem no código. Use exatamente estes nomes em có
 | **CPF** | Cadastro de Pessoas Físicas: 9 dígitos base + 2 dígitos verificadores. É o formato do documento. | `@CPF`, `DocumentoCpf` |
 | **Máscara** | A forma pontuada do CPF (`529.982.247-25`). Aceita só na entrada do registro. | `permitirMascara` |
 | **Registrar** | Criar uma pessoa no sistema (`POST /registrarName`). Evite: "cadastrar", "criar" em nomes de método. | `registrar(...)` |
+| **Prenome** | Primeiro termo do `nome`, em minúsculas ("Maria Clara" → "maria"). É o que se envia à nationalize.io e a chave do cache. | `prenome(...)` |
+| **Nacionalidade provável** | O país de maior probabilidade previsto para o prenome: código ISO, nome em pt-BR e probabilidade (0 a 1). Pode não existir. | `NacionalidadeProvavel` |
+| **nationalize.io** | API pública externa de previsão de nacionalidade por nome. Sempre chamada pelo `NationalizeClient`. | `NationalizeClient` |
 
 ## Técnico
 

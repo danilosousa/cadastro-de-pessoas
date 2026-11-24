@@ -14,6 +14,15 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+  cache:
+    # Previsões de nacionalidade: 24h, até 1000 nomes em memória (ADR 0007).
+    cache-names: nacionalidades
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=24h
+
+nationalize:
+  url: ${NATIONALIZE_URL:https://api.nationalize.io}
+  timeout: ${NATIONALIZE_TIMEOUT:3s}
 
 management:
   endpoints:
