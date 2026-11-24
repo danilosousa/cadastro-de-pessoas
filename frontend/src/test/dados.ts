@@ -7,9 +7,22 @@ export const PESSOAS: PessoaResponse[] = [
     nome: 'Nathaniel',
     sobrenome: 'Brooks',
     email: 'nathaniel@exemplo.com',
+    criadoEm: '2026-11-20T13:45:00Z',
   },
-  { documento: '75198461059', nome: 'Giulia', sobrenome: 'Rossi', email: 'giulia@exemplo.com' },
-  { documento: '26018573660', nome: 'Kenji', sobrenome: 'Tanaka', email: 'kenji@exemplo.com' },
+  {
+    documento: '75198461059',
+    nome: 'Giulia',
+    sobrenome: 'Rossi',
+    email: 'giulia@exemplo.com',
+    criadoEm: '2026-11-20T13:45:00Z',
+  },
+  {
+    documento: '26018573660',
+    nome: 'Kenji',
+    sobrenome: 'Tanaka',
+    email: 'kenji@exemplo.com',
+    criadoEm: '2026-11-20T13:45:00Z',
+  },
 ]
 
 /** Monta a resposta paginada como o backend (`page` começa em 0). */

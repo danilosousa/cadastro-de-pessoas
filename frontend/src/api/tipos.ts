@@ -1,13 +1,16 @@
 // Tipos que espelham os DTOs do backend (records Java). Mantidos à mão: são poucos e estáveis.
 
-export type PessoaResponse = {
+export type RegistrarPessoaRequest = {
   documento: string
   nome: string
   sobrenome: string
   email: string
 }
 
-export type RegistrarPessoaRequest = PessoaResponse
+export type PessoaResponse = RegistrarPessoaRequest & {
+  /** Instante do registro, em ISO 8601 (UTC). */
+  criadoEm: string
+}
 
 export type PaginaResponse<T> = {
   content: T[]

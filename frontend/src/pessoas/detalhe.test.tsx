@@ -36,6 +36,7 @@ describe('detalhe da pessoa', () => {
     expect(await screen.findByRole('heading', { name: 'Kenji Tanaka' })).toBeInTheDocument()
     expect(screen.getByText('260.185.736-60')).toBeInTheDocument()
     expect(screen.getByText('kenji@exemplo.com')).toBeInTheDocument()
+    expect(screen.getByText('Registrada em')).toBeInTheDocument()
     expect(screen.queryByText('Pessoa registrada')).not.toBeInTheDocument()
   })
 

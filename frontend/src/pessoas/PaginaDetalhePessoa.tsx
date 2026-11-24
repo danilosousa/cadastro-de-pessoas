@@ -12,6 +12,8 @@ import { usePessoa } from './consultas'
 import { ExcluirPessoa } from './ExcluirPessoa'
 import type { EstadoAposRegistro } from './PaginaRegistrarPessoa'
 
+const DATA_E_HORA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+
 export function PaginaDetalhePessoa() {
   const { documento = '' } = useParams()
 
@@ -91,6 +93,11 @@ function DetalheDaPessoa({ documento }: { documento: string }) {
             <Dado rotulo="Sobrenome">{pessoa.sobrenome}</Dado>
             <Dado rotulo="E-mail">
               <span className="break-all">{pessoa.email}</span>
+            </Dado>
+            <Dado rotulo="Registrada em">
+              <time dateTime={pessoa.criadoEm}>
+                {DATA_E_HORA.format(new Date(pessoa.criadoEm))}
+              </time>
             </Dado>
           </dl>
         </CardContent>

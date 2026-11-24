@@ -2,17 +2,18 @@ import { screen } from '@testing-library/react'
 import type { UserEvent } from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
-import type { PessoaResponse } from '@/api/tipos'
+import type { PessoaResponse, RegistrarPessoaRequest } from '@/api/tipos'
 import { PESSOAS, pagina } from '@/test/dados'
 import { renderizarApp } from '@/test/renderizar'
 import { API, servidor } from '@/test/servidor'
 
-const NOVA: PessoaResponse = {
+const DADOS: RegistrarPessoaRequest = {
   documento: '52998224725',
   nome: 'Maria Clara',
   sobrenome: "D'Ávila",
   email: 'maria@exemplo.com',
 }
+const NOVA: PessoaResponse = { ...DADOS, criadoEm: '2026-11-24T12:00:00Z' }
 
 async function preencher(usuario: UserEvent, dados: Partial<Record<string, string>>) {
   const rotulos: Record<string, string> = {
@@ -101,7 +102,7 @@ describe('registrar pessoa', () => {
     await usuario.click(screen.getByRole('button', { name: 'Registrar' }))
 
     await vi.waitFor(() => expect(router.state.location.pathname).toBe('/pessoas/52998224725'))
-    expect(recebidos).toEqual([NOVA])
+    expect(recebidos).toEqual([DADOS])
     expect(router.state.location.state).toEqual({ registrada: true })
   })
 
@@ -146,7 +147,7 @@ describe('registrar pessoa', () => {
     const { usuario } = renderizarApp('/pessoas/nova')
     await screen.findByRole('heading', { name: 'Registrar pessoa' })
 
-    await preencher(usuario, { ...NOVA })
+    await preencher(usuario, { ...DADOS })
     await usuario.click(screen.getByRole('button', { name: 'Registrar' }))
 
     expect(await screen.findByText('Deve ser um e-mail válido')).toBeInTheDocument()
@@ -170,7 +171,7 @@ describe('registrar pessoa', () => {
     const { router, usuario } = renderizarApp('/pessoas/nova')
     await screen.findByRole('heading', { name: 'Registrar pessoa' })
 
-    await preencher(usuario, { ...NOVA })
+    await preencher(usuario, { ...DADOS })
     await usuario.click(screen.getByRole('button', { name: 'Registrar' }))
 
     expect(await screen.findByText(detalhe)).toBeInTheDocument()
@@ -190,7 +191,7 @@ describe('registrar pessoa', () => {
     const { usuario } = renderizarApp('/pessoas/nova')
     await screen.findByRole('heading', { name: 'Registrar pessoa' })
 
-    await preencher(usuario, { ...NOVA })
+    await preencher(usuario, { ...DADOS })
     await usuario.click(screen.getByRole('button', { name: 'Registrar' }))
 
     expect(await screen.findByText('Não foi possível registrar')).toBeInTheDocument()
@@ -208,7 +209,7 @@ describe('registrar pessoa', () => {
     const { router, usuario } = renderizarApp('/pessoas/nova')
     await screen.findByRole('heading', { name: 'Registrar pessoa' })
 
-    await preencher(usuario, { ...NOVA })
+    await preencher(usuario, { ...DADOS })
     await usuario.click(screen.getByRole('button', { name: 'Registrar' }))
 
     expect(await screen.findByRole('button', { name: 'Registrando…' })).toBeDisabled()
