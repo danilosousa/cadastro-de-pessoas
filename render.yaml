@@ -2,8 +2,8 @@
 # não rode na máquina de quem avalia. Criado em Dashboard → New → Blueprint, a partir deste repositório;
 # cada push na main publica de novo. Ver ADR 0013.
 #
-#   interface → https://cadastro-de-pessoas.onrender.com      (site estático, com /api/* repassado à API)
-#   API       → https://cadastro-de-pessoas-api.onrender.com  (Swagger em /swagger-ui.html)
+#   interface → https://cadastro-de-pessoas-7lea.onrender.com      (site estático, com /api/* repassado à API)
+#   API       → https://cadastro-de-pessoas-api-dsn1.onrender.com  (Swagger em /swagger-ui.html)
 
 databases:
   - name: cadastro-de-pessoas-db
@@ -76,7 +76,7 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://cadastro-de-pessoas-api.onrender.com/*
+        destination: https://cadastro-de-pessoas-api-dsn1.onrender.com/*
       - type: rewrite # fallback da SPA: quem resolve /pessoas/123 é o React Router
         source: /*
         destination: /index.html

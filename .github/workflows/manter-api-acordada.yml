@@ -23,4 +23,4 @@ jobs:
       - name: Chamar o health check
         run: |
           curl --fail --silent --show-error --retry 5 --retry-delay 30 --retry-all-errors --max-time 60 \
-            https://cadastro-de-pessoas-api.onrender.com/actuator/health
+            https://cadastro-de-pessoas-api-dsn1.onrender.com/actuator/health

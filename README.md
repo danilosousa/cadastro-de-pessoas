@@ -7,7 +7,7 @@ Sistema para registrar, consultar, listar e excluir pessoas e prever a provável
 
 Tudo sobe com `docker compose up --build`.
 
-> 🌐 **Versão online**, caso não dê para rodar localmente: interface em <https://cadastro-de-pessoas.onrender.com> e API (Swagger) em <https://cadastro-de-pessoas-api.onrender.com/swagger-ui.html>. É o mesmo código, publicado no Render (plano gratuito) a cada push na `main`. O roteiro abaixo vale também para ela: troque `http://localhost:3005` e `http://localhost:8089` por esses endereços. Se a API estiver dormindo, o primeiro acesso pode levar alguns minutos ([ADR 0013](docs/adr/0013-versao-online-no-render.md)).
+> 🌐 **Versão online**, caso não dê para rodar localmente: interface em <https://cadastro-de-pessoas-7lea.onrender.com> e API (Swagger) em <https://cadastro-de-pessoas-api-dsn1.onrender.com/swagger-ui.html>. É o mesmo código, publicado no Render (plano gratuito) a cada push na `main`. O roteiro abaixo vale também para ela: troque `http://localhost:3005` e `http://localhost:8089` por esses endereços. Se a API estiver dormindo, o primeiro acesso pode levar alguns minutos ([ADR 0013](docs/adr/0013-versao-online-no-render.md)).
 
 ---
 
