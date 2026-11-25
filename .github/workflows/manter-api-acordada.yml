@@ -1,0 +1,26 @@
+# Mantém a API da versão online (render.yaml) acordada.
+#
+# No plano gratuito do Render, o serviço dorme após ~15 min sem tráfego, e acordar o Spring Boot
+# com 0,1 CPU leva alguns minutos. Uma chamada ao health check a cada 10 min evita isso; um único
+# serviço ligado o mês todo cabe nas 750 horas gratuitas. O GitHub pode atrasar execuções agendadas,
+# então, eventualmente, a API ainda pode estar dormindo no primeiro acesso.
+#
+# Para desligar: apague este arquivo ou desative o workflow na aba Actions.
+name: Manter API acordada
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Chamar o health check
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 30 --retry-all-errors --max-time 60 \
+            https://cadastro-de-pessoas-api.onrender.com/actuator/health

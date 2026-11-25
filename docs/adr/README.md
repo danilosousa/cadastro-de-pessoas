@@ -16,3 +16,4 @@ Cada ADR registra **uma** decisão relevante: o contexto, o que foi decidido, as
 | [0010](0010-proxy-api-e-mesma-origem.md) | Proxy `/api` e mesma origem | aceito |
 | [0011](0011-token-no-sessionstorage.md) | Token JWT guardado no `sessionStorage` | aceito, com adendo |
 | [0012](0012-login-automatico-no-frontend.md) | Login automático no frontend (sem tela de login) | aceito |
+| [0013](0013-versao-online-no-render.md) | Versão online no Render (Blueprint, plano gratuito) | aceito |

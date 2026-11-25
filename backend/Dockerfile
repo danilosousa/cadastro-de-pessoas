@@ -30,6 +30,9 @@ COPY --from=build /app/target/extraido/spring-boot-loader/ ./
 COPY --from=build /app/target/extraido/snapshot-dependencies/ ./
 COPY --from=build /app/target/extraido/application/ ./
 
+# Script que converte DATABASE_URL (formato do Render) em DB_URL (JDBC) e inicia o Java.
+COPY --chmod=755 docker-entrypoint.sh ./
+
 USER app
 EXPOSE 8089
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

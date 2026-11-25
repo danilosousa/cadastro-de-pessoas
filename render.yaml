@@ -1,0 +1,102 @@
+# Versão online no Render (plano gratuito), usada como alternativa caso o docker compose
+# não rode na máquina de quem avalia. Criado em Dashboard → New → Blueprint, a partir deste repositório;
+# cada push na main publica de novo. Ver ADR 0013.
+#
+#   interface → https://cadastro-de-pessoas.onrender.com      (site estático, com /api/* repassado à API)
+#   API       → https://cadastro-de-pessoas-api.onrender.com  (Swagger em /swagger-ui.html)
+
+databases:
+  - name: cadastro-de-pessoas-db
+    plan: free # expira 30 dias após a criação; as migrations recriam tudo num banco novo
+    region: virginia
+    postgresMajorVersion: "17"
+    databaseName: prova
+    user: prova
+    ipAllowList: [] # sem acesso pela internet: só a API, pela rede privada do Render
+
+services:
+  # API Spring Boot, a partir do mesmo backend/Dockerfile do docker compose.
+  - type: web
+    name: cadastro-de-pessoas-api
+    runtime: docker
+    plan: free # dorme após ~15 min sem uso; a primeira chamada seguinte leva ~1 min
+    region: virginia
+    rootDir: backend
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SERVER_PORT
+        value: "8089"
+      - key: PORT # porta que o Render usa para encaminhar o tráfego
+        value: "8089"
+      # Perfil "dev": carrega as pessoas de exemplo, para a demonstração não começar vazia.
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
+      # postgresql://usuario:senha@host:porta/banco → convertida em DB_URL (JDBC) pelo docker-entrypoint.sh
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cadastro-de-pessoas-db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: cadastro-de-pessoas-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: cadastro-de-pessoas-db
+          property: password
+      - key: JWT_SEGREDO
+        generateValue: true # 256 bits aleatórios, gerados pelo Render
+      # Mesmas credenciais embutidas na interface pelo login automático (ADR 0012).
+      - key: ADMIN_USUARIO
+        value: admin
+      - key: ADMIN_SENHA
+        value: admin123
+      # 512 MB e 0,1 CPU: heap proporcional à memória do container e JIT mais leve, para subir mais rápido.
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xss512k
+    buildFilter:
+      paths:
+        - backend/**
+
+  # Interface React como site estático (CDN; não dorme).
+  - type: web
+    name: cadastro-de-pessoas
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+    buildFilter:
+      paths:
+        - frontend/**
+    # Mesmo papel do nginx no docker compose (ADR 0010): a interface chama /api na própria
+    # origem e o Render repassa à API, sem CORS. A primeira regra que casar vence.
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://cadastro-de-pessoas-api.onrender.com/*
+      - type: rewrite # fallback da SPA: quem resolve /pessoas/123 é o React Router
+        source: /*
+        destination: /index.html
+    # Mesmos cabeçalhos do frontend/nginx/seguranca.inc.
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: Content-Security-Policy
+        value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache

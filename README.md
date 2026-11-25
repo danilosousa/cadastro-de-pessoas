@@ -7,6 +7,8 @@ Sistema para registrar, consultar, listar e excluir pessoas e prever a provável
 
 Tudo sobe com `docker compose up --build`.
 
+> 🌐 **Versão online**, caso não dê para rodar localmente: interface em <https://cadastro-de-pessoas.onrender.com> e API (Swagger) em <https://cadastro-de-pessoas-api.onrender.com/swagger-ui.html>. É o mesmo código, publicado no Render (plano gratuito) a cada push na `main`. O roteiro abaixo vale também para ela: troque `http://localhost:3005` e `http://localhost:8089` por esses endereços. Se a API estiver dormindo, o primeiro acesso pode levar alguns minutos ([ADR 0013](docs/adr/0013-versao-online-no-render.md)).
+
 ---
 
 ## Roteiro de avaliação (cerca de 10 minutos)
@@ -341,6 +343,7 @@ O navegador só chama `/api/...` na própria origem; o nginx (no Docker) ou o Vi
 | [0010](docs/adr/0010-proxy-api-e-mesma-origem.md) | Proxy `/api` e mesma origem |
 | [0011](docs/adr/0011-token-no-sessionstorage.md) | Token JWT no `sessionStorage` |
 | [0012](docs/adr/0012-login-automatico-no-frontend.md) | Login automático no frontend |
+| [0013](docs/adr/0013-versao-online-no-render.md) | Versão online no Render |
 
 Vocabulário do domínio: [`GLOSSARY.md`](GLOSSARY.md). Guia de estudo detalhado, capítulo a capítulo: [`docs/guia/`](docs/guia/README.md).
 
