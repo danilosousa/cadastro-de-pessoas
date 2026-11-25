@@ -163,7 +163,7 @@ class PreverNacionalidadeIntegrationTest {
         registrar(CPF, "Nathaniel");
         nationalize.stubFor(get(urlPathEqualTo("/")).willReturn(okJson("""
                 {"count":1,"name":"nathaniel","country":[{"country_id":"US","probability":0.3}]}
-                """).withFixedDelay(2_000)));   // timeout dos testes é 500 ms
+                """).withFixedDelay(5_000)));   // timeout dos testes é 2 s
 
         prever(CPF).andExpect(status().isBadGateway());
     }

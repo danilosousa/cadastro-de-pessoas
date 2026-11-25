@@ -19,13 +19,13 @@ Pré-requisito: **Docker** com Docker Compose. Nada mais precisa estar instalado
 docker compose up --build
 ```
 
-Espere os três serviços (`postgres`, `backend`, `frontend`) ficarem de pé: cerca de 1 a 2 minutos na primeira vez. Se alguma porta já estiver em uso, troque-a: `APP_PORT=8081 WEB_PORT=3001 docker compose up --build`.
+Espere os três serviços (`postgres`, `backend`, `frontend`) ficarem de pé: cerca de 1 a 2 minutos na primeira vez. As portas padrão (3005 e 8089) foram escolhidas para não colidir com outras aplicações, e o banco não usa porta do host. Se mesmo assim alguma estiver em uso, troque-a: `APP_PORT=8090 WEB_PORT=3006 docker compose up --build`.
 
-### 2. Interface web: <http://localhost:3000>
+### 2. Interface web: <http://localhost:3005>
 
 | # | Faça | Confira |
 |---|---|---|
-| 1 | Abra <http://localhost:3000> | A **lista de pessoas** abre direto, sem pedir login. O selo no canto do cabeçalho indica que a API está no ar |
+| 1 | Abra <http://localhost:3005> | A **lista de pessoas** abre direto, sem pedir login. O selo no canto do cabeçalho indica que a API está no ar |
 | 2 | Observe a lista | **8 pessoas de exemplo**, em ordem alfabética, com o CPF mascarado; abaixo, "Página 1 de 1 · 8 pessoas" |
 | 3 | Em **Buscar por CPF**, digite `12345678900` e clique em Buscar | "CPF inválido" (os dígitos verificadores são conferidos no navegador) |
 | 4 | Busque `260.185.736-60` | Abre o detalhe de **Kenji Tanaka** |
@@ -37,22 +37,22 @@ Espere os três serviços (`postgres`, `backend`, `frontend`) ficarem de pé: ce
 | 10 | Clique em Registrar pessoa de novo, com o **mesmo CPF** e outro e-mail | "Já existe uma pessoa registrada com este documento.", no campo CPF (409 da API) |
 | 11 | Abra o detalhe de Maria Clara, clique em **Excluir** e depois em **Cancelar** | Nada muda |
 | 12 | Clique em **Excluir** e confirme | Volta para a lista com "Pessoa excluída: Maria Clara Souza"; são 8 pessoas de novo |
-| 13 | Abra <http://localhost:3000/pessoas/11144477735> | "Pessoa não encontrada" (CPF válido, não cadastrado) |
+| 13 | Abra <http://localhost:3005/pessoas/11144477735> | "Pessoa não encontrada" (CPF válido, não cadastrado) |
 
 > **Observação sobre a nacionalidade:** sem chave de API, a nationalize.io permite só **10 consultas** por dia a partir de cada endereço IP. Esgotada a cota, a interface mostra "Cota de consultas esgotada" e a API responde **503**: é o tratamento de erro esperado. Para ampliar a cota, defina `NATIONALIZE_API_KEY` num arquivo `.env` ([Configuração](#configuração)).
 
 ### 3. API: autenticação e validações (Swagger ou curl)
 
-**Pelo Swagger** (<http://localhost:8080/swagger-ui.html>): execute `POST /auth/login` (o exemplo `admin` / `admin123` já vem preenchido), copie o `token`, clique em **Authorize**, cole e teste as rotas.
+**Pelo Swagger** (<http://localhost:8089/swagger-ui.html>): execute `POST /auth/login` (o exemplo `admin` / `admin123` já vem preenchido), copie o `token`, clique em **Authorize**, cole e teste as rotas.
 
 **Pelo terminal:**
 
 ```bash
 # Sem token: 401
-curl -i http://localhost:8080/list
+curl -i http://localhost:8089/list
 
 # Login: guarda o token
-TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8089/auth/login \
   -H "Content-Type: application/json" \
   -d '{"usuario":"admin","senha":"admin123"}' | sed 's/.*"token":"\([^"]*\)".*/\1/')
 ```
@@ -61,13 +61,13 @@ Cada rota tem uma **validação diferente** (requisito 1g). Com o token:
 
 | Rota | Comando | Esperado |
 |---|---|---|
-| `POST /registrarName`: corpo (CPF, letras, e-mail) | `curl -i -X POST http://localhost:8080/registrarName -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"documento":"529.982.247-24","nome":"Maria2","sobrenome":"","email":"maria@"}'` | **400** com a lista `erros` por campo |
-| `GET /list`: limites numéricos | `curl -i "http://localhost:8080/list?size=500" -H "Authorization: Bearer $TOKEN"` | **400**: `size` "deve estar entre 1 e 100" |
-| `GET /list/{documento}`: CPF com dígitos verificadores | `curl -i http://localhost:8080/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **400**: "deve ser um CPF válido" |
-| `DELETE /list/{documento}`: só o formato (11 dígitos) | `curl -i -X DELETE http://localhost:8080/list/123 -H "Authorization: Bearer $TOKEN"` | **400**: "deve conter exatamente 11 dígitos" |
-| | `curl -i -X DELETE http://localhost:8080/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **404**: o formato passa, e a pessoa não existe |
-| `GET /findNacionalityByPerson/{documento}`: CPF + pessoa registrada | `curl -i http://localhost:8080/findNacionalityByPerson/11144477735 -H "Authorization: Bearer $TOKEN"` | **404**: CPF válido, não cadastrado |
-| | `curl -i http://localhost:8080/findNacionalityByPerson/26018573660 -H "Authorization: Bearer $TOKEN"` | **200** com Japão, ou **503** se a cota acabou |
+| `POST /registrarName`: corpo (CPF, letras, e-mail) | `curl -i -X POST http://localhost:8089/registrarName -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"documento":"529.982.247-24","nome":"Maria2","sobrenome":"","email":"maria@"}'` | **400** com a lista `erros` por campo |
+| `GET /list`: limites numéricos | `curl -i "http://localhost:8089/list?size=500" -H "Authorization: Bearer $TOKEN"` | **400**: `size` "deve estar entre 1 e 100" |
+| `GET /list/{documento}`: CPF com dígitos verificadores | `curl -i http://localhost:8089/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **400**: "deve ser um CPF válido" |
+| `DELETE /list/{documento}`: só o formato (11 dígitos) | `curl -i -X DELETE http://localhost:8089/list/123 -H "Authorization: Bearer $TOKEN"` | **400**: "deve conter exatamente 11 dígitos" |
+| | `curl -i -X DELETE http://localhost:8089/list/12345678900 -H "Authorization: Bearer $TOKEN"` | **404**: o formato passa, e a pessoa não existe |
+| `GET /findNacionalityByPerson/{documento}`: CPF + pessoa registrada | `curl -i http://localhost:8089/findNacionalityByPerson/11144477735 -H "Authorization: Bearer $TOKEN"` | **404**: CPF válido, não cadastrado |
+| | `curl -i http://localhost:8089/findNacionalityByPerson/26018573660 -H "Authorization: Bearer $TOKEN"` | **200** com Japão, ou **503** se a cota acabou |
 
 Todos os erros seguem o formato **RFC 7807** (`title`, `status`, `detail` e, nos de validação, `erros`).
 
@@ -110,32 +110,34 @@ Quando os três serviços estiverem de pé (cerca de 1 a 2 minutos na primeira v
 
 | O quê | Onde |
 |---|---|
-| **Interface web** | <http://localhost:3000> |
-| Swagger (testar a API no navegador) | <http://localhost:8080/swagger-ui.html> |
-| Health | <http://localhost:8080/actuator/health> |
+| **Interface web** | <http://localhost:3005> |
+| Swagger (testar a API no navegador) | <http://localhost:8089/swagger-ui.html> |
+| Health | <http://localhost:8089/actuator/health> |
 | Usuário / senha padrão | `admin` / `admin123` |
 
 O compose sobe no perfil `dev`, que já cadastra **8 pessoas de exemplo** (Nathaniel, Giulia, Kenji, Olumide, Sofía, Hans, Pierre, João).
 
 Para parar: `Ctrl+C` ou `docker compose down` (`down -v` apaga também os dados).
 
-> Se a porta 8080, 5432 ou 3000 já estiver em uso, troque-a: `APP_PORT=8081 WEB_PORT=3001 docker compose up --build`.
+> As portas padrão são de propósito pouco comuns (**3005** e **8089**), e o Postgres não usa nenhuma porta do host, para não colidir com outras aplicações. Se mesmo assim uma delas estiver em uso, troque-a: `APP_PORT=8090 WEB_PORT=3006 docker compose up --build`.
 
 ### Opção 2: backend local (desenvolvimento)
 
 Pré-requisitos: **JDK 21** e **Docker** (só para o banco).
 
 ```bash
-docker compose up -d postgres     # só o banco
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres   # só o banco, exposto na 5432
 cd backend
-./mvnw spring-boot:run            # Windows: .\mvnw.cmd spring-boot:run
+./mvnw spring-boot:run            # Windows: .\mvnw.cmd spring-boot:run → http://localhost:8089
 ```
+
+O `docker-compose.dev.yml` só acrescenta a porta do Postgres no host (`DB_PORT`, padrão 5432), que o compose principal não expõe.
 
 Para carregar as pessoas de exemplo também nesse modo, use `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`.
 
 ### Opção 3: frontend local (desenvolvimento)
 
-Pré-requisitos: **Node 22** e o backend rodando na porta 8080 (opção 2).
+Pré-requisitos: **Node 22** e o backend rodando na porta 8089 (opção 2).
 
 ```bash
 cd frontend
@@ -149,7 +151,7 @@ O Vite repassa `/api/*` ao backend (`API_URL` muda o destino).
 
 ## Como usar a interface
 
-Abra <http://localhost:3000> (ou <http://localhost:5173> na opção 3). A interface abre direto na listagem: ela faz o login na API sozinha, com as credenciais do admin ([ADR 0012](docs/adr/0012-login-automatico-no-frontend.md)).
+Abra <http://localhost:3005> (ou <http://localhost:5173> na opção 3). A interface abre direto na listagem: ela faz o login na API sozinha, com as credenciais do admin ([ADR 0012](docs/adr/0012-login-automatico-no-frontend.md)).
 
 | Tela | O que dá para fazer | Rota da API usada |
 |---|---|---|
@@ -168,7 +170,7 @@ Todas as rotas de negócio exigem um token. O fluxo:
 **1. Login**
 
 ```bash
-curl -X POST http://localhost:8080/auth/login \
+curl -X POST http://localhost:8089/auth/login \
   -H "Content-Type: application/json" \
   -d '{"usuario":"admin","senha":"admin123"}'
 ```
@@ -183,21 +185,21 @@ curl -X POST http://localhost:8080/auth/login \
 TOKEN="cole-o-token-aqui"
 
 # Registrar
-curl -i -X POST http://localhost:8080/registrarName \
+curl -i -X POST http://localhost:8089/registrarName \
   -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
   -d '{"documento":"529.982.247-25","nome":"Maria Clara","sobrenome":"Souza","email":"maria@exemplo.com"}'
 
 # Listar (paginado)
-curl "http://localhost:8080/list?page=0&size=20" -H "Authorization: Bearer $TOKEN"
+curl "http://localhost:8089/list?page=0&size=20" -H "Authorization: Bearer $TOKEN"
 
 # Consultar
-curl http://localhost:8080/list/52998224725 -H "Authorization: Bearer $TOKEN"
+curl http://localhost:8089/list/52998224725 -H "Authorization: Bearer $TOKEN"
 
 # Prever nacionalidade
-curl http://localhost:8080/findNacionalityByPerson/52998224725 -H "Authorization: Bearer $TOKEN"
+curl http://localhost:8089/findNacionalityByPerson/52998224725 -H "Authorization: Bearer $TOKEN"
 
 # Excluir
-curl -i -X DELETE http://localhost:8080/list/52998224725 -H "Authorization: Bearer $TOKEN"
+curl -i -X DELETE http://localhost:8089/list/52998224725 -H "Authorization: Bearer $TOKEN"
 ```
 
 **No Swagger:** execute `POST /auth/login` (o exemplo já vem preenchido), copie o `token`, clique em **Authorize** e cole. Todas as rotas passam a funcionar.
@@ -375,7 +377,9 @@ Todas as configurações têm padrão de desenvolvimento e podem ser sobrescrita
 | `NATIONALIZE_API_KEY` | vazio | chave opcional da nationalize.io (sem ela: 10 consultas) |
 | `NATIONALIZE_URL` / `NATIONALIZE_TIMEOUT` | `https://api.nationalize.io` / `3s` | integração externa |
 | `SPRING_PROFILES_ACTIVE` | `dev` no compose | `dev` carrega as pessoas de exemplo |
-| `WEB_PORT` / `APP_PORT` / `DB_PORT` | `3000` / `8080` / `5432` | portas no host (compose) |
+| `WEB_PORT` / `APP_PORT` | `3005` / `8089` | portas no host (compose) |
+| `DB_PORT` | `5432` | porta do Postgres no host, só com `docker-compose.dev.yml` |
+| `SERVER_PORT` | `8089` | porta em que o backend escuta (local ou no container) |
 | `VITE_API_USUARIO` / `VITE_API_SENHA` | `admin` / `admin123` | credenciais do login automático da interface, embutidas no build; o compose usa `ADMIN_USUARIO` / `ADMIN_SENHA` |
 
 > ⚠️ Os padrões de senha e de `JWT_SEGREDO` existem para a avaliação rodar sem configuração. Não os use em produção.

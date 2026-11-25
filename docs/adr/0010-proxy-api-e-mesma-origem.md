@@ -23,3 +23,7 @@ O frontend chama sempre caminhos relativos começando com **`/api`**. Um proxy n
 - Um único build do frontend serve qualquer ambiente; só o proxy sabe onde o backend está.
 - Sem CORS e sem *preflight* para a interface. O CORS do backend continua configurado para quem chamar a API direto de outra origem.
 - O backend não sabe do prefixo `/api`: as rotas do enunciado continuam exatamente como pedidas.
+
+## Adendo (2026-11-24): portas
+
+Para não colidir com aplicações que já estejam rodando na máquina do avaliador, as portas padrão mudaram: o backend escuta na **8089** (`SERVER_PORT`), e o compose publica a interface na **3005** e a API na **8089**. O Postgres deixou de ser publicado no host (só o `docker-compose.dev.yml` o expõe, para a IDE). O proxy do Vite aponta para `http://localhost:8089` e o nginx para `http://backend:8089/`. A decisão de mesma origem não muda.

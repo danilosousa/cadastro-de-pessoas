@@ -15,8 +15,12 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 @TestConfiguration(proxyBeanMethods = false)
 public class WireMockConfiguration {
 
-    /** Timeout curto nos testes para o cenário de lentidão não deixar a suíte lenta. */
-    static final String TIMEOUT_DE_TESTE = "500ms";
+    /**
+     * Timeout dos testes: curto o bastante para o cenário de lentidão não deixar a suíte lenta,
+     * com folga para máquinas carregadas (com 500 ms, o WireMock chegou a estourar o tempo
+     * numa resposta normal enquanto a máquina fazia um build do Docker).
+     */
+    static final String TIMEOUT_DE_TESTE = "2s";
 
     /** Chave falsa: os testes verificam que ela é enviada no parâmetro {@code apikey}. */
     public static final String API_KEY_DE_TESTE = "chave-de-teste";

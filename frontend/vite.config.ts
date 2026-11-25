@@ -32,7 +32,7 @@ export default defineConfig({
     // Mesma origem: o navegador chama /api/... e o Vite repassa ao backend sem o prefixo.
     proxy: {
       '/api': {
-        target: process.env.API_URL ?? 'http://localhost:8080',
+        target: process.env.API_URL ?? 'http://localhost:8089',
         changeOrigin: true,
         rewrite: (caminho) => caminho.replace(/^\/api/, ''),
       },

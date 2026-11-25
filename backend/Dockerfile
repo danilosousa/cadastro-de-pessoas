@@ -31,5 +31,5 @@ COPY --from=build /app/target/extraido/snapshot-dependencies/ ./
 COPY --from=build /app/target/extraido/application/ ./
 
 USER app
-EXPOSE 8080
+EXPOSE 8089
 ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

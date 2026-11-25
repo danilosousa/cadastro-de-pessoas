@@ -1,0 +1,8 @@
+# Complemento para desenvolvimento: expõe o Postgres no host para o backend rodar pela IDE.
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d postgres
+# O docker-compose.yml sozinho (o que o avaliador usa) não expõe o banco, para não
+# disputar a 5432 com um Postgres que já esteja instalado na máquina.
+services:
+  postgres:
+    ports:
+      - "${DB_PORT:-5432}:5432"

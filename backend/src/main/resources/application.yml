@@ -1,8 +1,12 @@
+server:
+  # 8089 e não 8080: a 8080 costuma estar ocupada na máquina de quem avalia.
+  port: ${SERVER_PORT:8089}
+
 spring:
   application:
     name: prova-fullstack
   datasource:
-    # Valores padrão batem com o docker-compose.yml da raiz.
+    # Valores padrão batem com o docker-compose.dev.yml da raiz (Postgres exposto na 5432).
     # Em outro ambiente, sobrescreva com DB_URL / DB_USER / DB_PASSWORD.
     url: ${DB_URL:jdbc:postgresql://localhost:5432/prova}
     username: ${DB_USER:prova}
