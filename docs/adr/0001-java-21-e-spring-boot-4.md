@@ -21,5 +21,5 @@ O plano original era a linha 4.0.x. No dia da criação do projeto, o Spring Ini
 
 ## Consequências
 
-- Parte do material online ainda é do Boot 3. Diferenças relevantes encontradas no caminho ficam registradas no guia (`docs/guia/`).
+- Parte do material online ainda é do Boot 3: exemplos encontrados na internet nem sempre se aplicam sem ajuste.
 - A versão do springdoc precisa acompanhar a linha do Boot (springdoc 3.1.x ↔ Boot 4.1).

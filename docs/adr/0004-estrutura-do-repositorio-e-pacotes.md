@@ -15,7 +15,7 @@ A prova é Fullstack: haverá um backend Java e, depois, uma interface web. Dent
 ├── backend/            projeto Spring Boot (Maven)
 ├── frontend/           interface web (spec posterior)
 ├── docker-compose.yml  sobe a infraestrutura (e, no fim, tudo)
-└── docs/               ADRs e guia de estudo
+└── docs/               ADRs
 ```
 
 **Backend**: pacotes **por funcionalidade** sob `com.example.prova`:

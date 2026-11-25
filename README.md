@@ -345,7 +345,7 @@ O navegador só chama `/api/...` na própria origem; o nginx (no Docker) ou o Vi
 | [0012](docs/adr/0012-login-automatico-no-frontend.md) | Login automático no frontend |
 | [0013](docs/adr/0013-versao-online-no-render.md) | Versão online no Render |
 
-Vocabulário do domínio: [`GLOSSARY.md`](GLOSSARY.md). Guia de estudo detalhado, capítulo a capítulo: [`docs/guia/`](docs/guia/README.md).
+Vocabulário do domínio: [`GLOSSARY.md`](GLOSSARY.md).
 
 ### Stack
 
